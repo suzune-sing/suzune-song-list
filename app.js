@@ -1,7 +1,7 @@
 let activeMajor = null;
+let allSongsMode = false;
 
-const state = {
-  query: ""
+const state = {  query: ""
 };
 
 
@@ -112,7 +112,6 @@ function categorySongCount(category) {
     0
   );
 }
-
 function countMajor(major) {
   if (!major || !Array.isArray(major.categories)) {
     return 0;
@@ -124,6 +123,15 @@ function countMajor(major) {
     0
   );
 }
+
+function countAllSongs() {
+  return SONG_DATA.reduce(
+    (total, major) =>
+      total + countMajor(major),
+    0
+  );
+}
+
 
 
 /* =========================
@@ -220,11 +228,22 @@ function renderTabs() {
 
   if (!el) return;
 
-  el.innerHTML = SONG_DATA
+    const allButton = `
+    <button
+      type="button"
+      class="${allSongsMode ? "active" : ""}"
+      data-all="true"
+    >
+      🔎 全曲
+      <small>(${countAllSongs()}曲)</small>
+    </button>
+  `;
+
+  const majorButtons = SONG_DATA
     .map((major, index) => `
       <button
         type="button"
-        class="${major === activeMajor ? "active" : ""}"
+        class="${!allSongsMode && major === activeMajor ? "active" : ""}"
         data-index="${index}"
       >
         ${escapeHtml(major.name)}
@@ -233,15 +252,49 @@ function renderTabs() {
     `)
     .join("");
 
-  el.querySelectorAll("button")
-    .forEach(button => {
+  el.innerHTML =
+    allButton +
+    majorButtons;
+    /* 全曲ボタン */
 
-      button.addEventListener("click", () => {
+  const allButtonElement =
+    el.querySelector('[data-all="true"]');
+
+  if (allButtonElement) {
+
+    allButtonElement.addEventListener(
+      "click",
+      () => {
+
+        allSongsMode = true;
+
+        render();
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      }
+    );
+  }
+
+
+  /* 通常ジャンルのボタン */
+
+  el.querySelectorAll(
+    'button[data-index]'
+  ).forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
 
         activeMajor =
           SONG_DATA[
             Number(button.dataset.index)
           ];
+
+        allSongsMode = false;
 
         state.query = "";
 
@@ -258,10 +311,10 @@ function renderTabs() {
           top: 0,
           behavior: "smooth"
         });
-      });
+      }
+    );
 
-    });
-}
+  });}
 
 
 /* =========================
@@ -444,6 +497,9 @@ function renderNestedItem(
 /* =========================
    メイン
 ========================= */
+/* =========================
+   メイン
+========================= */
 
 function render() {
 
@@ -459,6 +515,199 @@ function render() {
   if (!area) return;
 
   let totalMatches = 0;
+
+
+  /* =========================
+     全曲モード
+  ========================= */
+
+  if (allSongsMode) {
+
+    let html = `
+      <div class="major-title">
+        🔎 全曲
+        <span class="count">
+          (${countAllSongs()}曲)
+        </span>
+      </div>
+    `;
+
+
+    SONG_DATA.forEach(major => {
+
+      /*
+        検索中は、
+        この大ジャンルの中に
+        検索結果があるか確認
+      */
+
+      const hasMajorMatch =
+        !state.query ||
+        major.categories.some(category =>
+          categoryHasMatch(
+            category,
+            major
+          )
+        );
+
+
+      if (!hasMajorMatch) {
+        return;
+      }
+
+
+      html += `
+        <details>
+
+          <summary>
+            ${escapeHtml(major.name)}
+            <span class="count">
+              (${state.query
+                ? major.categories.reduce(
+                    (total, category) =>
+                      total +
+                      category.items.reduce(
+                        (sum, item) =>
+                          sum +
+                          countMatchingItem(
+                            item,
+                            major,
+                            category
+                          ),
+                        0
+                      ),
+                    0
+                  )
+                : countMajor(major)}曲)
+            </span>
+          </summary>
+
+          <div class="subcategory">
+      `;
+
+
+      major.categories.forEach(category => {
+
+        if (
+          !categoryHasMatch(
+            category,
+            major
+          )
+        ) {
+          return;
+        }
+
+
+        const categoryCount =
+          state.query
+            ? category.items.reduce(
+                (total, item) =>
+                  total +
+                  countMatchingItem(
+                    item,
+                    major,
+                    category
+                  ),
+                0
+              )
+            : categorySongCount(category);
+
+
+        html += `
+          <details>
+
+            <summary>
+              〖${escapeHtml(category.name)}〗
+              <span class="count">
+                (${categoryCount}曲)
+              </span>
+            </summary>
+
+            <div class="subcategory">
+        `;
+
+
+        category.items.forEach(item => {
+
+          html += renderItem(
+            item,
+            major,
+            category
+          );
+
+
+          totalMatches +=
+            state.query
+              ? countMatchingItem(
+                  item,
+                  major,
+                  category
+                )
+              : itemSongCount(item);
+
+        });
+
+
+        html += `
+            </div>
+
+          </details>
+        `;
+      });
+
+
+      html += `
+          </div>
+
+        </details>
+      `;
+
+    });
+
+
+    /*
+      検索結果が0件だった場合
+    */
+
+    if (
+      state.query &&
+      totalMatches === 0
+    ) {
+
+      html += `
+        <div class="empty">
+          「${escapeHtml(state.query)}」に
+          一致する曲はありませんでした。
+        </div>
+      `;
+
+    }
+
+
+    area.innerHTML = html;
+
+
+    const resultInfo =
+      document.querySelector("#resultInfo");
+
+
+    if (resultInfo) {
+
+      resultInfo.textContent =
+        state.query
+          ? `${totalMatches}曲が見つかりました（全ジャンルから検索）`
+          : `全${countAllSongs()}曲`;
+
+    }
+
+
+    return;
+  }
+
+
+  /* =========================
+     通常ジャンル表示
+  ========================= */
 
   let html = `
     <div class="major-title">
@@ -481,6 +730,7 @@ function render() {
       ) {
         return;
       }
+
 
       const categoryCount =
         state.query
@@ -518,6 +768,7 @@ function render() {
           activeMajor,
           category
         );
+
 
         totalMatches +=
           state.query
@@ -559,16 +810,16 @@ function render() {
   const resultInfo =
     document.querySelector("#resultInfo");
 
+
   if (resultInfo) {
 
     resultInfo.textContent =
       state.query
         ? `${totalMatches}曲が見つかりました（曲名・分類名などを検索）`
         : "";
+
   }
 }
-
-
 /* =========================
    検索イベント
 ========================= */
