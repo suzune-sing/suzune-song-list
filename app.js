@@ -64,7 +64,7 @@ function renderTabs(){
 
 function renderSongList(songs, major, category, item){
   return `<ul class="song-list">${
-    songs.map(song=>`<li>${highlight(typeof song === "string" ? song : song.title)}</li>.join("")
+    songs.map(song=>`<li>${highlight(song.title)}</li>.join("")
   }</ul>`;
 }
 
