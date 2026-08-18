@@ -101,14 +101,100 @@ const SONG_DATA = [
         {name:"CoMeTic",songs:["無自覚アプリオリ"]},
         {name:"その他",songs:["カウンドダウンラブ","KAWAII♡めたもる交響曲","Ring Ring Ringの魔法","karma","Poison Berry Daughters"]}
       ]},
-      {name:"デレマス",items:[
-        {name:"全体・定番曲",songs:["お願い!シンデレラ","ススメ☆オトメ"]},
-        {name:"ソロ曲",songs:["あんずのうた","ショコラ・ティアラ","おねだりShall We〜？","ニャンとスペクタクル","S(mile)ING！","Naked Romance","アップルパイ・プリンセス","Romantic Now","メルヘンデビュー！","To my Darling...","エヴリデイドリーム","マイ・スイート・ハネムーン","小さな恋の密室事件","花簪HANAKANZASHI","き・ま・ぐ・れ☆cafe au lait","秘密のトワレ","ラヴィアン・ローズ","恋色エナジー","lilac time","恋のhamburg♪","しゅがーはぁと☆レボリューション","14平米にスーヴェニア(1番まで)","Packing Her Favorite(1番まで)","トキメキは赤くて甘い","セレブレイト・スターレイル","にんぎょひめ練習中！","あの子が街に来なサンタ","プライスレスドーナッChu♡","満貫成就♪巫女の神頼み！","SUPERLOVE☆"]},
-        {name:"複数人曲",items:[
-          {name:"夏曲",songs:["いとしーさー♡","サマカニ！！","Go Just Go","Let’s sail away"]},
-          {name:"その他",songs:["ステップ＆スキップ","Gossip Club","ギュっとMilky Way","Great Journey","はにかみdays","Brand new!","アタシポンコツアンドロイド","絶対特権主張しますっ！","パステルピンクな恋","キラッ！満開スマイル","秋めいて Ding Dong Dang!","Snow＊Love","きゅん・きゅん・まっくす","ドレミファクトリー！","MOTTO!","Love∞Destiny","イリュージョニスタ！","ラブレター","モーレツ★世直しギルティ!","リトルリドル","Kawaii make MY day!","クレイジークレイジー","Palette","O-Ku-Ri-Mo-No Sunday!","無重力シャトル","comic cosmic","ミラーボール・ラブ","無限L∞PだLOVE♡","凸凹スピードスター","ラビューダ♡トライアングル","Pretty Liar"]}
-        ]}
-      ]}
+      {
+        name:"デレマス",
+        items:[
+          {
+            name:"全体・定番曲",
+            songs:["お願い!シンデレラ","ススメ☆オトメ"]
+          },
+          {
+            name:"ソロ曲",
+            songs:[
+              "あんずのうた",
+              "ショコラ・ティアラ",
+              "おねだりShall We〜？",
+              "ニャンとスペクタクル",
+              "S(mile)ING！",
+              "Naked Romance",
+              "アップルパイ・プリンセス",
+              "Romantic Now",
+              "メルヘンデビュー！",
+              "To my Darling...",
+              "エヴリデイドリーム",
+              "マイ・スイート・ハネムーン",
+              "小さな恋の密室事件",
+              "花簪HANAKANZASHI",
+              "き・ま・ぐ・れ☆cafe au lait",
+              "秘密のトワレ",
+              "ラヴィアン・ローズ",
+              "恋色エナジー",
+              "lilac time",
+              "恋のhamburg♪",
+              "しゅがーはぁと☆レボリューション",
+              "14平米にスーヴェニア(1番まで)",
+              "Packing Her Favorite(1番まで)",
+              "トキメキは赤くて甘い",
+              "セレブレイト・スターレイル",
+              "にんぎょひめ練習中！",
+              "あの子が街に来なサンタ",
+              "プライスレスドーナッChu♡",
+              "満貫成就♪巫女の神頼み！",
+              "SUPERLOVE☆"
+            ]
+          },
+          {
+            name:"複数人曲",
+            items:[
+              {
+                name:"夏曲",
+                songs:[
+                  "いとしーさー♡",
+                  "サマカニ！！",
+                  "Go Just Go",
+                  "Let’s sail away"
+                ]
+              },
+              {
+                name:"その他",
+                songs:[
+                  "ステップ＆スキップ",
+                  "Gossip Club",
+                  "ギュっとMilky Way",
+                  "Great Journey",
+                  "はにかみdays",
+                  "Brand new!",
+                  "アタシポンコツアンドロイド",
+                  "絶対特権主張しますっ！",
+                  "パステルピンクな恋",
+                  "キラッ！満開スマイル",
+                  "秋めいて Ding Dong Dang!",
+                  "Snow＊Love",
+                  "きゅん・きゅん・まっくす",
+                  "ドレミファクトリー！",
+                  "MOTTO!",
+                  "Love∞Destiny",
+                  "イリュージョニスタ！",
+                  "ラブレター",
+                  "モーレツ★世直しギルティ!",
+                  "リトルリドル",
+                  "Kawaii make MY day!",
+                  "クレイジークレイジー",
+                  "Palette",
+                  "O-Ku-Ri-Mo-No Sunday!",
+                  "無重力シャトル",
+                  "comic cosmic",
+                  "ミラーボール・ラブ",
+                  "無限L∞PだLOVE♡",
+                  "凸凹スピードスター",
+                  "ラビューダ♡トライアングル",
+                  "Pretty Liar"
+                ]
+              }
+            ]
+          }
+        ]
+      }
     ]
   },
   {
@@ -162,15 +248,38 @@ const SONG_DATA = [
   }
 ];
 
-function normalizeData(){
-  SONG_DATA.forEach(major=>{
-    major.categories.forEach(cat=>{
-      cat.items.forEach(item=>{
-        item.songs=item.songs.map(title=>typeof title==="string"?{title,status:"歌える"}:title);
+function normalizeData() {
+  SONG_DATA.forEach(major => {
+    major.categories.forEach(category => {
+      category.items.forEach(item => {
+        if (Array.isArray(item.songs)) {
+          item.songs = item.songs.map(song =>
+            typeof song === "string"
+              ? {
+                  title: song,
+                  status: "歌える"
+                }
+              : song
+          );
+        }
+
+        if (Array.isArray(item.items)) {
+          item.items.forEach(child => {
+            if (Array.isArray(child.songs)) {
+              child.songs = child.songs.map(song =>
+                typeof song === "string"
+                  ? {
+                      title: song,
+                      status: "歌える"
+                    }
+                  : song
+              );
+            }
+          });
+        }
       });
     });
   });
-
-  }
 }
+
 normalizeData();

@@ -1,186 +1,668 @@
 let activeMajor = null;
-const state = { query: "" };
 
-function itemSongCount(item){
-  if(item.songs) return item.songs.length;
-  if(item.subcategories) return item.subcategories.reduce((n,c)=>n+countCategory(c),0);
+const state = {
+  query: ""
+};
+
+
+/* =========================
+   共通
+========================= */
+
+function normalize(value) {
+  return String(value ?? "")
+    .toLocaleLowerCase("ja-JP")
+    .normalize("NFKC");
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char])
+  );
+}
+
+function highlight(text) {
+  const raw = String(text ?? "");
+
+  if (!state.query) {
+    return escapeHtml(raw);
+  }
+
+  const query = normalize(state.query);
+  const normalizedRaw = normalize(raw);
+  const index = normalizedRaw.indexOf(query);
+
+  if (index < 0) {
+    return escapeHtml(raw);
+  }
+
+  return (
+    escapeHtml(raw.slice(0, index)) +
+    "<mark>" +
+    escapeHtml(raw.slice(index, index + state.query.length)) +
+    "</mark>" +
+    escapeHtml(raw.slice(index + state.query.length))
+  );
+}
+
+
+/* =========================
+   検索
+========================= */
+
+function matches(song, major, category, item) {
+  if (!state.query) return true;
+
+  const query = normalize(state.query);
+
+  return [
+    song?.title,
+    song?.status,
+    song?.genre,
+    song?.season,
+    song?.work,
+    major?.name,
+    category?.name,
+    item?.name
+  ]
+    .filter(value => value !== undefined && value !== null)
+    .some(value =>
+      normalize(value).includes(query)
+    );
+}
+
+
+/* =========================
+   曲数
+========================= */
+
+function itemSongCount(item) {
+  if (!item) return 0;
+
+  if (Array.isArray(item.songs)) {
+    return item.songs.length;
+  }
+
+  if (Array.isArray(item.items)) {
+    return item.items.reduce(
+      (total, child) =>
+        total + itemSongCount(child),
+      0
+    );
+  }
+
   return 0;
 }
-function countCategory(category){
-  return category.items.reduce((n,i)=>n+itemSongCount(i),0);
-}
-function allSongsInMajor(major){
-  const out=[];
-  function walkCat(cat){
-    cat.items.forEach(item=>{
-      if(item.songs) out.push(...item.songs);
-      if(item.subcategories) item.subcategories.forEach(walkCat);
-    });
+
+function categorySongCount(category) {
+  if (!category || !Array.isArray(category.items)) {
+    return 0;
   }
-  major.categories.forEach(walkCat);
-  return out;
-}
-function countMajor(major){ return allSongsInMajor(major).length; }
 
-function normalize(s){
-  return String(s ?? "").toLocaleLowerCase("ja-JP").normalize("NFKC");
-}
-function matches(song, major, category, item){
-  if(!state.query) return true;
-  const q=normalize(state.query);
-  return [
-    song.title, major.name, category.name, item.name,
-    song.genre, song.season, song.work, song.status
-  ].filter(Boolean).some(v=>normalize(v).includes(q));
-}
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-}
-function highlight(text){
-  const raw=String(text);
-  if(!state.query) return escapeHtml(raw);
-  const q=state.query, idx=normalize(raw).indexOf(normalize(q));
-  if(idx<0) return escapeHtml(raw);
-  return escapeHtml(raw.slice(0,idx))+"<mark>"+escapeHtml(raw.slice(idx,idx+q.length))+"</mark>"+escapeHtml(raw.slice(idx+q.length));
+  return category.items.reduce(
+    (total, item) =>
+      total + itemSongCount(item),
+    0
+  );
 }
 
-function renderTabs(){
-  const el=document.querySelector("#categoryTabs");
-  el.innerHTML=SONG_DATA.map((m,i)=>
-    `<button type="button" class="${m===activeMajor?'active':''}" data-i="${i}">
-      ${escapeHtml(m.name)} <small>(${countMajor(m)}曲)</small>
-    </button>`
-  ).join("");
-  el.querySelectorAll("button").forEach(b=>{
-    b.addEventListener("click",()=>{
-      activeMajor=SONG_DATA[Number(b.dataset.i)];
-      state.query="";
-      document.querySelector("#searchInput").value="";
-      render();
-      window.scrollTo({top:0,behavior:"smooth"});
-    });
-  });
+function countMajor(major) {
+  if (!major || !Array.isArray(major.categories)) {
+    return 0;
+  }
+
+  return major.categories.reduce(
+    (total, category) =>
+      total + categorySongCount(category),
+    0
+  );
 }
 
-function renderSongList(songs, major, category, item){
-  return `<ul class="song-list">${
-    songs.map(song=>`<li>${highlight(song.title)}</li>.join("")
-  }</ul>`;
+
+/* =========================
+   検索結果判定
+========================= */
+
+function itemHasMatch(item, major, category) {
+  if (!item) return false;
+
+  if (Array.isArray(item.songs)) {
+    return item.songs.some(song =>
+      matches(song, major, category, item)
+    );
+  }
+
+  if (Array.isArray(item.items)) {
+    return item.items.some(child =>
+      itemHasMatch(child, major, category)
+    );
+  }
+
+  return false;
 }
 
-function categoryHasMatch(category, major){
-  if(!state.query) return true;
-  return category.items.some(item=>{
-    if(item.songs) return item.songs.some(s=>matches(s,major,category,item));
-    if(item.subcategories){
-      return item.subcategories.some(sub=>
-        sub.items.some(si=>si.songs && si.songs.some(s=>matches(s,major,sub,si)))
-      );
-    }
+function categoryHasMatch(category, major) {
+  if (!state.query) return true;
+
+  if (!Array.isArray(category?.items)) {
     return false;
-  });
+  }
+
+  return category.items.some(item =>
+    itemHasMatch(item, major, category)
+  );
 }
 
-function render(){
-  if(!activeMajor) activeMajor=SONG_DATA[0];
+
+/* =========================
+   検索曲数
+========================= */
+
+function countMatchingItem(item, major, category) {
+  if (!item) return 0;
+
+  if (Array.isArray(item.songs)) {
+    return item.songs.filter(song =>
+      matches(song, major, category, item)
+    ).length;
+  }
+
+  if (Array.isArray(item.items)) {
+    return item.items.reduce(
+      (total, child) =>
+        total +
+        countMatchingItem(
+          child,
+          major,
+          category
+        ),
+      0
+    );
+  }
+
+  return 0;
+}
+
+
+/* =========================
+   曲リスト
+========================= */
+
+function renderSongList(songs) {
+  return `
+    <ul class="song-list">
+      ${songs
+        .map(song => `
+          <li>
+            ${highlight(song?.title ?? song)}
+          </li>
+        `)
+        .join("")}
+    </ul>
+  `;
+}
+
+
+/* =========================
+   タブ
+========================= */
+
+function renderTabs() {
+  const el =
+    document.querySelector("#categoryTabs");
+
+  if (!el) return;
+
+  el.innerHTML = SONG_DATA
+    .map((major, index) => `
+      <button
+        type="button"
+        class="${major === activeMajor ? "active" : ""}"
+        data-index="${index}"
+      >
+        ${escapeHtml(major.name)}
+        <small>(${countMajor(major)}曲)</small>
+      </button>
+    `)
+    .join("");
+
+  el.querySelectorAll("button")
+    .forEach(button => {
+
+      button.addEventListener("click", () => {
+
+        activeMajor =
+          SONG_DATA[
+            Number(button.dataset.index)
+          ];
+
+        state.query = "";
+
+        const input =
+          document.querySelector("#searchInput");
+
+        if (input) {
+          input.value = "";
+        }
+
+        render();
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      });
+
+    });
+}
+
+
+/* =========================
+   item表示
+========================= */
+
+function renderItem(
+  item,
+  major,
+  category
+) {
+  if (!item) return "";
+
+  /* songsを直接持つitem */
+
+  if (Array.isArray(item.songs)) {
+
+    const songs =
+      item.songs.filter(song =>
+        matches(
+          song,
+          major,
+          category,
+          item
+        )
+      );
+
+    if (
+      state.query &&
+      songs.length === 0
+    ) {
+      return "";
+    }
+
+    /*
+      例：
+
+      ボカロ
+      〖電ポルP〗
+        ・曲
+        ・曲
+
+      のようにしたい場合
+    */
+
+    if (category.name === item.name) {
+      return renderSongList(songs);
+    }
+
+    return `
+      <details class="small">
+
+        <summary>
+          【${escapeHtml(item.name)}】
+          <span class="count">
+            (${songs.length}曲)
+          </span>
+        </summary>
+
+        ${renderSongList(songs)}
+
+      </details>
+    `;
+  }
+
+
+  /* itemの中にitemsがある場合 */
+
+  if (Array.isArray(item.items)) {
+
+    const hasMatch =
+      !state.query ||
+      item.items.some(child =>
+        itemHasMatch(
+          child,
+          major,
+          category
+        )
+      );
+
+    if (!hasMatch) {
+      return "";
+    }
+
+    if (category.name === item.name) {
+
+      return item.items
+        .map(child =>
+          renderNestedItem(
+            child,
+            major,
+            category
+          )
+        )
+        .join("");
+    }
+
+    return `
+      <details class="small">
+
+        <summary>
+          【${escapeHtml(item.name)}】
+          <span class="count">
+            (${itemSongCount(item)}曲)
+          </span>
+        </summary>
+
+        ${item.items
+          .map(child =>
+            renderNestedItem(
+              child,
+              major,
+              category
+            )
+          )
+          .join("")}
+
+      </details>
+    `;
+  }
+
+  return "";
+}
+
+
+/* =========================
+   ネストitem
+========================= */
+
+function renderNestedItem(
+  item,
+  major,
+  category
+) {
+  if (!item) return "";
+
+  if (Array.isArray(item.songs)) {
+
+    const songs =
+      item.songs.filter(song =>
+        matches(
+          song,
+          major,
+          category,
+          item
+        )
+      );
+
+    if (
+      state.query &&
+      songs.length === 0
+    ) {
+      return "";
+    }
+
+    return `
+      <details>
+
+        <summary>
+          〖${escapeHtml(item.name)}〗
+          <span class="count">
+            (${songs.length}曲)
+          </span>
+        </summary>
+
+        ${renderSongList(songs)}
+
+      </details>
+    `;
+  }
+
+  return renderItem(
+    item,
+    major,
+    category
+  );
+}
+
+
+/* =========================
+   メイン
+========================= */
+
+function render() {
+
+  if (!activeMajor) {
+    activeMajor = SONG_DATA[0];
+  }
+
   renderTabs();
 
-  const area=document.querySelector("#songArea");
-  const q=state.query;
-  let totalMatches=0;
+  const area =
+    document.querySelector("#songArea");
 
-  let html=`<div class="major-title">${escapeHtml(activeMajor.name)}
-    <span class="count">(${countMajor(activeMajor)}曲)</span>
-  </div>`;
+  if (!area) return;
 
-  activeMajor.categories.forEach(cat=>{
-    if(!categoryHasMatch(cat,activeMajor)) return;
+  let totalMatches = 0;
 
-    const catCount=q
-      ? cat.items.reduce((n,item)=>{
-          if(item.songs) return n+item.songs.filter(s=>matches(s,activeMajor,cat,item)).length;
-          if(item.subcategories) return n+item.subcategories.reduce((nn,sub)=>
-            nn+sub.items.reduce((nnn,si)=>nnn+(si.songs?si.songs.filter(s=>matches(s,activeMajor,sub,si)).length:0),0),0);
-          return n;
-        },0)
-      : countCategory(cat);
+  let html = `
+    <div class="major-title">
+      ${escapeHtml(activeMajor.name)}
+      <span class="count">
+        (${countMajor(activeMajor)}曲)
+      </span>
+    </div>
+  `;
 
-    html+=`<details>
-      <summary>〖${escapeHtml(cat.name)}〗 <span class="count">(${catCount})</span></summary>
-      <div class="subcategory">`;
 
-    cat.items.forEach(item=>{
-      if(item.songs){
-        const songs=item.songs.filter(s=>matches(s,activeMajor,cat,item));
-        if(q && !songs.length) return;
-        totalMatches+=songs.length;
+  activeMajor.categories
+    .forEach(category => {
 
-        if(cat.directSongs){
-          html+=renderSongList(songs,activeMajor,cat,item);
-        }else{
-          html+=`<details class="small">
-            <summary>【${escapeHtml(item.name)}】 <span class="count">(${songs.length})</span></summary>
-            ${renderSongList(songs,activeMajor,cat,item)}
-          </details>`;
-        }
-      }else if(item.subcategories){
-        if(q){
-          const has=item.subcategories.some(sub=>
-            sub.items.some(si=>si.songs?.some(s=>matches(s,activeMajor,sub,si)))
-          );
-          if(!has) return;
-        }
-        html+=`<details class="small">
-          <summary>【${escapeHtml(item.name)}】 <span class="count">(${itemSongCount(item)})</span></summary>`;
-        item.subcategories.forEach(sub=>{
-          const songs=sub.items.flatMap(si=>si.songs||[]).filter(s=>matches(s,activeMajor,sub,sub.items[0]));
-          if(q && !songs.length) return;
-          totalMatches+=songs.length;
-          html+=`<details>
-            <summary>〖${escapeHtml(sub.name)}〗 <span class="count">(${songs.length})</span></summary>
-            <div class="subcategory">`;
-          sub.items.forEach(si=>{
-            const siSongs=(si.songs||[]).filter(s=>matches(s,activeMajor,sub,si));
-            if(q && !siSongs.length) return;
-            totalMatches += 0; // counted above
-            html+=renderSongList(siSongs,activeMajor,sub,si);
-          });
-          html+=`</div></details>`;
-        });
-        html+=`</details>`;
+      if (
+        !categoryHasMatch(
+          category,
+          activeMajor
+        )
+      ) {
+        return;
       }
+
+      const categoryCount =
+        state.query
+          ? category.items.reduce(
+              (total, item) =>
+                total +
+                countMatchingItem(
+                  item,
+                  activeMajor,
+                  category
+                ),
+              0
+            )
+          : categorySongCount(category);
+
+
+      html += `
+        <details>
+
+          <summary>
+            〖${escapeHtml(category.name)}〗
+            <span class="count">
+              (${categoryCount}曲)
+            </span>
+          </summary>
+
+          <div class="subcategory">
+      `;
+
+
+      category.items.forEach(item => {
+
+        html += renderItem(
+          item,
+          activeMajor,
+          category
+        );
+
+        totalMatches +=
+          state.query
+            ? countMatchingItem(
+                item,
+                activeMajor,
+                category
+              )
+            : itemSongCount(item);
+
+      });
+
+
+      html += `
+          </div>
+
+        </details>
+      `;
     });
-    html+=`</div></details>`;
-  });
 
-  if(q && !totalMatches){
-    html+=`<div class="empty">「${escapeHtml(q)}」に一致する曲はありませんでした。</div>`;
+
+  if (
+    state.query &&
+    totalMatches === 0
+  ) {
+
+    html += `
+      <div class="empty">
+        「${escapeHtml(state.query)}」に
+        一致する曲はありませんでした。
+      </div>
+    `;
   }
-  area.innerHTML=html;
-  document.querySelector("#resultInfo").textContent=q
-    ? `${totalMatches}曲が見つかりました（曲名・分類名などを検索）`
-    : "";
+
+
+  area.innerHTML = html;
+
+
+  const resultInfo =
+    document.querySelector("#resultInfo");
+
+  if (resultInfo) {
+
+    resultInfo.textContent =
+      state.query
+        ? `${totalMatches}曲が見つかりました（曲名・分類名などを検索）`
+        : "";
+  }
 }
 
-document.querySelector("#searchInput").addEventListener("input",e=>{
-  state.query=e.target.value.trim();
-  render();
-});
-document.querySelector("#clearSearch").addEventListener("click",()=>{
-  state.query="";
-  document.querySelector("#searchInput").value="";
-  render();
-  document.querySelector("#searchInput").focus();
-});
-document.querySelector("#themeToggle").addEventListener("click",()=>{
-  document.documentElement.classList.toggle("dark");
-  const dark=document.documentElement.classList.contains("dark");
-  localStorage.setItem("suzune-theme",dark?"dark":"light");
-  document.querySelector("#themeToggle").textContent=dark?"☀️":"🌙";
-});
-if(localStorage.getItem("suzune-theme")==="dark"){
-  document.documentElement.classList.add("dark");
-  document.querySelector("#themeToggle").textContent="☀️";
+
+/* =========================
+   検索イベント
+========================= */
+
+const searchInput =
+  document.querySelector("#searchInput");
+
+if (searchInput) {
+
+  searchInput.addEventListener(
+    "input",
+    event => {
+
+      state.query =
+        event.target.value.trim();
+
+      render();
+    }
+  );
 }
-activeMajor=SONG_DATA[0];
+
+
+const clearSearch =
+  document.querySelector("#clearSearch");
+
+if (clearSearch) {
+
+  clearSearch.addEventListener(
+    "click",
+    () => {
+
+      state.query = "";
+
+      if (searchInput) {
+        searchInput.value = "";
+        searchInput.focus();
+      }
+
+      render();
+    }
+  );
+}
+
+
+/* =========================
+   ダークモード
+========================= */
+
+const themeToggle =
+  document.querySelector("#themeToggle");
+
+if (themeToggle) {
+
+  themeToggle.addEventListener(
+    "click",
+    () => {
+
+      document.documentElement
+        .classList.toggle("dark");
+
+      const dark =
+        document.documentElement
+          .classList
+          .contains("dark");
+
+      localStorage.setItem(
+        "suzune-theme",
+        dark ? "dark" : "light"
+      );
+
+      themeToggle.textContent =
+        dark ? "☀️" : "🌙";
+    }
+  );
+
+
+  if (
+    localStorage.getItem(
+      "suzune-theme"
+    ) === "dark"
+  ) {
+
+    document.documentElement
+      .classList.add("dark");
+
+    themeToggle.textContent = "☀️";
+  }
+}
+
+
+/* =========================
+   初期表示
+========================= */
+
+activeMajor = SONG_DATA[0];
+
 render();
