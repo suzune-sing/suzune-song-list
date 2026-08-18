@@ -170,9 +170,7 @@ function normalizeData(){
       });
     });
   });
-  const vocaloid=SONG_DATA.find(x=>x.name==="🫧ボカロ🫧");
-  if(vocaloid){
-    vocaloid.categories.sort((a,b)=>a.name.localeCompare(b.name,"ja"));
+
   }
 }
 normalizeData();
