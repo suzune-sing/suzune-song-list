@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#bfeeff">
+
+  <title>🫧🩵涼音◦°suzuneの歌える曲リスト🩵🫧</title>
+
+  <link rel="stylesheet" href="2style.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="bubble">🫧</div>
+
+    <h1>🫧🩵涼音◦°suzuneの歌える曲リスト🩵🫧</h1>
+
+    <button
+      id="themeToggle"
+      class="theme-toggle"
+      type="button"
+      aria-label="ライト/ダークモード切替"
+    >
+      🌙
+    </button>
+  </header>
+
+  <main>
+    <section class="tools" aria-label="検索">
+      <label class="search-box">
+        <span>🔎</span>
+
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="曲名・分類名から検索…"
+          autocomplete="off"
+        >
+
+        <button
+          id="clearSearch"
+          type="button"
+          aria-label="検索をクリア"
+        >
+          ×
+        </button>
+      </label>
+
+      <p id="resultInfo" class="result-info"></p>
+    </section>
+
+    <nav
+      id="categoryTabs"
+      class="tabs"
+      aria-label="大分類"
+    ></nav>
+
+    <section
+      id="songArea"
+      class="song-area"
+    ></section>
+
+    <section class="future-panel">
+      <h2>🫧 これから追加予定の機能</h2>
+
+      <div class="future-grid">
+        <article>
+          <b>🩵 自己紹介</b>
+          <span>プロフィールを掲載できます。</span>
+        </article>
+
+        <article>
+          <b>🩵 SNSリンク</b>
+          <span>Xなどのリンクを設定できる骨組みです。</span>
+        </article>
+
+        <article>
+          <b>🩵 覚え中の曲</b>
+          <span>将来「覚え中」タブを追加しやすい構造です。</span>
+        </article>
+
+        <article>
+          <b>🩵 ステータス</b>
+          <span>歌える・覚え中・練習中・保留などへ拡張できます。</span>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    🫧 曲データは <code>songs.js</code> で管理しています 🫧
+  </footer>
+
+  <script src="songs_idol.girls.anime.js"></script>
+  <script src="songs_imas.js"></script>
+<script src="songs_3d_idol.js"></script>
+  <script src="songs_vtuber.js"></script>
+  <script src="songs_honeyworks.js"></script>
+  <script src="songs_vocaloid.js"></script>
+
+  <script src="2songs.js"></script>
+  <script src="2app.js"></script>
+</body>
+</html>
