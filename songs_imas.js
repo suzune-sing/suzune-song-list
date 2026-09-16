@@ -2,9 +2,9 @@ const SONGS_IMAS = {
   name:"🫧アイマス🫧",
   categories:[
     {name:"学マス",items:[
-      {name:"花海咲季",songs:["Fighting My Way","Boom Boom Pow","EGO","Tri it now","Wildest Flower"]},
+      {name:"花海咲季",songs:["Fighting My Way","Boom Boom Pow","EGO","Tri it now","Wildest Flower","nazonazo"]},
       {name:"月村手毬",songs:["Luna say maybe","アイヴイ","Unhappy Light","叶えたい、ことばかり。","一体いつから"]},
-      {name:"藤田ことね",songs:["世界一可愛い私","Yellow Big Bang！","ふわふわ","The cute!!!","自己肯定感爆上げ↑↑しゅきしゅきソング"]},
+      {name:"藤田ことね",songs:["世界一可愛い私","Yellow Big Bang！","ふわふわ","The cute!!!","自己肯定感爆上げ↑↑しゅきしゅきソング","神かわいい"]},
       {name:"有村麻央",songs:["Fluorite","Top Secret(1番まで)"]},
       {name:"葛城リーリヤ",songs:["白線"]},
       {name:"倉本千奈",songs:["Wonder Scale","日々、発見的ステップ！","ときめきのソルフェージュ"]},
@@ -15,7 +15,7 @@ const SONGS_IMAS = {
       {name:"秦谷美鈴",songs:["ヨルニテ","VEIL"]},
       {name:"十王星南",songs:["Choo Choo Choo(一番まで)"]},
       {name:"雨夜燕",songs:["クライアイ"]},
-      {name:"複数人",songs:["がむしゃらに行こう！","ときめきエモーション","みちなるひろがる","わかし・さわがし・スカパンク","ガラクタロード","キミとセミブルー","ナイワ","ハッピーミルフィーユ","ミラクルナナウ","仮装狂騒曲","冠菊","初","古今東西ちょちょいのちょい","標","雨上がりのアイリス","雪解けに","Campus_mode!!","ENDLESS DANCE","Howling over the World","SUGAR FLAVOR","SUPREMACY","Star-mine","White_Night!_White_Wish!"]}
+      {name:"複数人",songs:["がむしゃらに行こう！","ときめきエモーション","みちなるひろがる","わかし・さわがし・スカパンク","ガラクタロード","キミとセミブルー","ナイワ","ハッピーミルフィーユ","ミラクルナナウ","仮装狂騒曲","冠菊","初","古今東西ちょちょいのちょい","標","雨上がりのアイリス","雪解けに","Campus_mode!!","ENDLESS DANCE","Howling over the World","SUGAR FLAVOR","SUPREMACY","Star-mine","White_Night!_White_Wish!","修楽旅行","ねえ、言っちゃうよ。"]}
     ]},
     {name:"シャニマス",items:[
       {name:"ソロ曲",songs:["Darling you!","誰ソ彼アイデンティティー","SOS","フェアリー・ガール","あおぞらサイダー"]},

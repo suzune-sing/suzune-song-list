@@ -12,7 +12,7 @@ const SONGS_HONEYWORKS = {
       {name:"高見沢アリサ",directItems:true,items:[{name:"高見沢アリサ",songs:["ハートの主張","生意気ハニー -another story-","男の子の目的は何？"]}]},
       {name:"綾瀬恋雪・扇野りょう",directItems:true,items:[{name:"綾瀬恋雪・扇野りょう",songs:["告白ライバル宣言","恋愛成就","コスプレしたいのっ！"]}]},
       {name:"鏡音リン・レン",directItems:true,items:[{name:"鏡音リン・レン",songs:["スキキライ","竹取オーバーナイトセンセーション"]}]},
-      {name:"最近のHoneyWorks",directItems:true,items:[{name:"最近のHoneyWorks",songs:["今、恋が始まれ。","ムカつく -another story-","初恋は負け確！","彼氏自慢"]}]},
+      {name:"最近のHoneyWorks",directItems:true,items:[{name:"最近のHoneyWorks",songs:["今、恋が始まれ。","ムカつく -another story-","初恋は負け確！","彼氏自慢","かわいいは常識♡","えるあーるセッション"]}]},
       {name:"その他",directItems:true,items:[{name:"その他",songs:["今ちょっとだけ話題の神様","暁月夜","ツインズ","ミスター・ダーリン","月曜日の憂鬱","乙女どもよ。","愛に出会い恋は続く","幸せ。","醜い生き物","小悪魔だってかまわない！","ヒミツ恋ゴコロ","ぎじれんあい","ロメオ","アイのシナリオ","恋のコード","世界は恋に落ちている","決戦スピリット"]}]}
     ]
 };

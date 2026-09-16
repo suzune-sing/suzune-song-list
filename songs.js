@@ -6,12 +6,14 @@
 const SONG_DATA = [
   SONGS_IDOL_GIRLS_ANIME,
   SONGS_IMAS,
- SONGS_3D_IDOL,
+  SONGS_3D_IDOL,
   SONGS_VTUBER,
   SONGS_HONEYWORKS,
-  SONGS_VOCALOID
+  SONGS_VOCALOID,
+  SONGS_ANIME,
+SONGS_VOICE_ACTORS,
+SONGS_JAPANESE,
 ];
-
 function normalizeData() {
   SONG_DATA.forEach(major => {
     major.categories.forEach(category => {

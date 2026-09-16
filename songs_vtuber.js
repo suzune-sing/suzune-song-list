@@ -22,7 +22,7 @@ const SONGS_VTUBER = {
             "コンプレックスプリンセス",
             "スキスキDieスキ超Ayeシテル",
             "A Horny Money World〜伝説の夜〜",
-            "愛罠beジャンキー"
+            "愛罠beジャンキー","きゃぴ"
           ]
         },
         {
