@@ -10,7 +10,7 @@ const SONGS_IMAS = {
       {name:"倉本千奈",songs:["Wonder Scale","日々、発見的ステップ！","ときめきのソルフェージュ"]},
       {name:"紫雲清夏",songs:["Tame-Lie-One-Step","カクシタワタシ","Kira Kira(1番まで)","Love & Joy"]},
       {name:"篠澤広",songs:["光景","コントラスト","コンテンポラリのダンス","メクルメ","サンフェーデッド"]},
-      {name:"姫崎莉波",songs:["Clumsy trick","L.U.V","marble heart","36℃UBE"]},
+      {name:"姫崎莉波",songs:["Clumsy trick","L.U.V","marble heart","36℃UBE","歌声は君いろ"]},
       {name:"花海佑芽",songs:["The Rolling Riceball","グースーピー","つよつよ最強エクササイズ","金の斧、銀の斧、エメラルドの斧"]},
       {name:"秦谷美鈴",songs:["ヨルニテ","VEIL"]},
       {name:"十王星南",songs:["Choo Choo Choo(一番まで)"]},
